@@ -27,8 +27,19 @@ services:
     ports:
       - "8081:8080"
     entrypoint: >
-      /bin/bash -c "airflow db upgrade &&
-                    airflow users create -u admin -p admin -r Admin -e admin@example.com -f Admin || true &&
-                    airflow webserver & airflow scheduler"
+      /bin/bash -c "airflow db migrate && 
+                    airflow standalone"
+
+  print-passwords:
+    image: apache/airflow:slim-latest-python3.13
+    depends_on:
+      - airflow
+    entrypoint:
+      [
+        "bash",
+        "-c",
+        "cat /opt/airflow/simple_auth_manager_passwords.json.generated",
+      ]
+
 volumes:
   redis-data:
